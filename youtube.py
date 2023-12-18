@@ -1,5 +1,6 @@
 #importing libraries
 import pandas as pd
+#pip install google-api-python-client
 from googleapiclient.discovery import build
 import pymongo
 import pymysql
@@ -19,9 +20,9 @@ cur=mydb.cursor()
 #creating sidebar for option menu
 with st.sidebar:
            icon = Image.open(r"C:\\Users\\NANDHU\Desktop\\3610206.png")
-           st.image(icon,width=50)
+           st.image(icon,width=100)
            st.title(":red[YOUTUBE DATA HARVESTING AND WAREHOUSING]")   
-           st.header("ABOUT")
+           st.header(":blue[ABOUT]")
            st.subheader("The webapp created by Nalina Lingasamy for capstone project in Data Science course")
            
            choosen= option_menu("Menu", 
@@ -30,10 +31,10 @@ with st.sidebar:
                                   default_index=0,
                                   orientation="vertical",
                                   styles={"nav-link": {"font-size": "15px", "text-align": "centre", "margin": "0px", 
-                                                "--hover-color": "#33A5FF"},
+                                                "--hover-color": "#FFCCBB"},
                                    "icon": {"font-size": "15px"},
-                                   "container" : {"max-width": "4000px"},
-                                   "nav-link-selected": {"background-color": "#33A5FF"}})    
+                                   "container" : {"max-width": "2000px"},
+                                   "nav-link-selected": {"background-color": "#F85C4D"}})    
            
 
 #Getting API KEY:
@@ -156,27 +157,29 @@ def channel_names():
 
 #if "HOME" is selected
 if choosen == "Home":
-    st.header(":red[Project Overview]")
+    st.title(":red[YOUTUBE DATA HARVESTING AND WAREHOUSING]")
+    st.header(":blue[Project Overview]")
     st.subheader(":blue[Domain:]")
-    st.caption("**Social Media**")
+    st.write("**Social Media**")
     st.subheader(":blue[Skills used:]")
-    st.caption("**# Python**")
-    st.caption("**# MongoDB**")
-    st.caption("**# Youtube Data API**")
-    st.caption("**# MySql**")
-    st.caption("**# Streamlit**")
+    st.write("**# Youtube Data API**")
+    st.write("**# Python**")
+    st.write("**# MongoDB**")  
+    st.write("**# MySql**")
+    st.write("**# Streamlit**")
     st.subheader(":blue[Overview:]")
-    st.caption("Retrieving Youtube channels data from the Google API and storing it in MongoDB as a data lake then transforming data into SQL then querying the data and displaying it in the Streamlit app")
+    st.write("**Retrieving Youtube channels data from the Google API and storing it in MongoDB as a data lake then transforming data into SQL then querying the data and displaying it in the Streamlit app**")
     
 
 #if "EXTRACT AND TRANSFORM" is selected
 if choosen == "Extract & Transform":
-    tab1,tab2 = st.tabs(["$\huge EXTRACT $", "$\huge TRANSFORM $"])
+    st.subheader(":blue[Extracting and Transforming Details]")
+    option = st.radio("Choose",("Extract","Transform"))
     
-    # EXTRACT TAB
-    with tab1:
+    # EXTRACT option to get channel details
+    if(option == "Extract"):
         st.markdown("#    ")
-        st.write("### Enter YouTube Channel_ID below :")
+        st.write("**:blue[Enter YouTube Channel_ID:]**")
         ch_id = st.text_input("Hint : Goto channel's home page > Right click > View page source > Find channel_id").split(',')
 
         if ch_id and st.button("Extract Data"):
@@ -185,7 +188,7 @@ if choosen == "Extract & Transform":
                 st.table(ch_details)
 
         if st.button("Upload to MongoDB"):
-                with st.spinner('Please Wait for it...'):
+                with st.spinner('Please Wait...'):
                     ch_details = get_channel_details(ch_id)
                     v_ids = get_channel_videos(ch_id)
                     vid_details = get_video_details(v_ids)
@@ -204,12 +207,12 @@ if choosen == "Extract & Transform":
                     st.success("Transfer to MongoDB Completed")
 
 
-# TRANSFORM TAB
-    with tab2:     
+# TRANSFORM option to transfer datas to SQL
+    if(option == "Transform"):     
             st.markdown("#   ")
-            st.markdown("### Select a channel to begin Transformation to SQL")
+            st.markdown("**:blue[Select a channel to Transfer into SQL]**")
             ch_names = channel_names()  
-            user_inp = st.selectbox("Select channel",options= ch_names)
+            user_inp = st.selectbox("**Select channel**",options= ch_names)
         
 #creating channels table in SQL:
     def channel_table():
@@ -324,7 +327,7 @@ if choosen == "Extract & Transform":
 # VIEW PAGE
 if choosen == "View":
 
-        #To show dataframe in streamlit as table
+    #To show channels dataframe in streamlit as a table
     def streamlit_channels():
         collections1 = db.channel_details
         ch_name = []
@@ -335,7 +338,7 @@ if choosen == "View":
         return df
 
 
-    #To show dataframe in streamlit as table
+    #To show videos dataframe in streamlit as a table
     def streamlit_videos():
         collections2 = db.video_details
         vid_name = []
@@ -345,7 +348,7 @@ if choosen == "View":
         df2=st.dataframe(vid_name)
         return df2
 
-    #To show dataframe in streamlit as table
+    #To show comments dataframe in streamlit as a table
     def streamlit_comments():
         collections3 = db.comments_details
         comments = []
@@ -358,14 +361,17 @@ if choosen == "View":
     #showing tables in streamlit
     tables_op=st.radio("SELECT TABLES TO VIEW",("Channels","Videos","Comments"))
     if tables_op=="Channels":
+        st.subheader(":blue[Channels table]")
         streamlit_channels() #calling dataframe function
     elif tables_op=="Videos":
+        st.subheader(":blue[Videos table]")
         streamlit_videos()
     elif tables_op=="Comments":
+        st.subheader(":blue[Comments table]")
         streamlit_comments()
 
     
-    st.write("## :orange[Select any question to get Insights]")
+    st.write("## :red[Select any question to get Insights]")
     questions = st.selectbox('Questions',
     ['1. What are the names of all the videos and their corresponding channels?',
     '2. Which channels have the most number of videos, and how many videos do they have?',
@@ -375,7 +381,7 @@ if choosen == "View":
     '6. What is the total number of likes and dislikes for each video, and what are their corresponding video names?',
     '7. What is the total number of views for each channel, and what are their corresponding channel names?',
     '8. What are the names of all the channels that have published videos in the year 2022?',
-    '9. What is the average duration of all videos in each channel, and what are their corresponding channel names?',
+    '9. What is the total number of subscribers for each channel?',
     '10. Which videos have the highest number of comments, and what are their corresponding channel names?'])
     
     if questions == '1. What are the names of all the videos and their corresponding channels?':
@@ -391,7 +397,7 @@ if choosen == "View":
          mydb.commit()
          df = pd.DataFrame(cur.fetchall(),columns=["Channel Name","Total Video count"])
          st.write(df)
-         st.write("### :green[Number of videos in each channel :]")
+         st.write("### :blue[Number of videos in each channel :]")
          fig = px.bar(df,
                      x="Channel Name",
                      y="Total Video count",
@@ -406,7 +412,7 @@ if choosen == "View":
          mydb.commit()
          df = pd.DataFrame(cur.fetchall(),columns=["Channel Name","Video Name","Total Views"])
          st.write(df)
-         st.write("### :green[Top 10 most viewed videos :]")
+         st.write("### :blue[Top 10 most viewed videos :]")
          fig = px.bar(df,
                      x="Video Name",
                      y="Total Views",
@@ -416,19 +422,28 @@ if choosen == "View":
          st.plotly_chart(fig,use_container_width=True)
 
     elif questions == '4. How many comments were made on each video, and what are their corresponding video names?':
-         cur.execute('''select v.Title as Video_name,v.Video_id, count(Comment_id) as Total_comments
-                     from videos v right join comments c on v.Video_id=c.Video_id
-                    group by c.Video_id order by Total_comments desc;''')
+         cur.execute(''' select channel_name,title as Video_Name,
+                         comments as No_of_comments
+                         from videos order by No_of_comments desc ;''')
          mydb.commit()
-         df = pd.DataFrame(cur.fetchall(),columns=["Video Name","Video ID","Total Comments"])
+         df = pd.DataFrame(cur.fetchall(),columns=["Channel Name","Video Name","Total Comments"])
          st.write(df)
+         st.write("### :blue[Top 10 most commented videos :]")
+         fig = px.bar(df,
+                     x="Video Name",
+                     y="Total Comments",
+                     orientation='v',
+                     color="Channel Name"
+                    )
+         st.plotly_chart(fig,use_container_width=True)
+
 
     elif questions == '5. Which videos have the highest number of likes, and what are their corresponding channel names?':
          cur.execute('''select Channel_name, Title, Likes from videos where Likes is not null order by Likes desc limit 10;''')
          mydb.commit()
          df = pd.DataFrame(cur.fetchall(),columns=["Channel Name","Video Name","Likes"])
          st.write(df)
-         st.write("### :green[Top 10 most liked videos :]")
+         st.write("### :blue[Top 10 most liked videos :]")
          fig = px.bar(df,
                      x="Video Name",
                      y="Likes",
@@ -448,7 +463,7 @@ if choosen == "View":
          mydb.commit()
          df = pd.DataFrame(cur.fetchall(),columns=["Channel Name","Views"])
          st.write(df)   
-         st.write("### :green[Channels vs Views :]")
+         st.write("### :blue[Channel vs Views :]")
          fig = px.bar(df,
                      x="Channel Name",
                      y="Views",
@@ -462,21 +477,28 @@ if choosen == "View":
          mydb.commit()
          df = pd.DataFrame(cur.fetchall(),columns=["Channel Name","Video","Pub_Date"])
          st.write(df)   
-
-    elif questions == '9. What is the average duration of all videos in each channel, and what are their corresponding channel names?':
-         cur.execute('''select Channel_name , avg(Duration) as Duration from videos group by Channel_name;''')
+    
+    elif questions == '9. What is the total number of subscribers for each channel?':
+         cur.execute('''select channel_name,subscribers from channels order by subscribers desc;''')
          mydb.commit()
-         df = pd.DataFrame(cur.fetchall(),columns=["Channel_name","Duration"])
+         df = pd.DataFrame(cur.fetchall(),columns=["Channel_name","Subscribers"])
          st.write(df)   
+         fig = px.bar(df,
+                     x="Channel_name",
+                     y="Subscribers",
+                     orientation='v',
+                     color="Channel_name"
+                    )
+         st.plotly_chart(fig,use_container_width=True)
 
     elif questions == '10. Which videos have the highest number of comments, and what are their corresponding channel names?':
-         cur.execute('''select v.channel_name,c.video_id,v.Title as video_name,count(comment_id) as comments_count
-                     from comments c join videos v on c.video_id=v.video_id group by c.video_id 
-                     order by comments_count desc;''') 
+         cur.execute(''' select channel_name,title as Video_Name,
+                         comments as No_of_comments
+                         from videos order by No_of_comments desc limit 20;''') 
          mydb.commit()
-         df = pd.DataFrame(cur.fetchall(),columns=["Channel Name","Video ID","Video Name","Comments Count"])
+         df = pd.DataFrame(cur.fetchall(),columns=["Channel Name","Video Name","Comments Count"])
          st.write(df)   
-         st.write("### :green[Videos with most comments :]")
+         st.write("### :blue[Videos with most comments :]")
          fig = px.bar(df,
                      x="Video Name",
                      y="Comments Count",
